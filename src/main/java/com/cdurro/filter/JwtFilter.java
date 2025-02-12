@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -15,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.cdurro.service.JwtService;
 import com.cdurro.service.MyUserDetailsService;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,23 +37,29 @@ public class JwtFilter extends OncePerRequestFilter {
 		String token = null;
 		String username = null;
 		
-		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-			token = authHeader.substring(7);
-			username = jwtService.extractUsername(token);
+		try {
 
-		}
-		
-		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
-			
-			if (jwtService.validateToken(token, userDetails))  {
-				UsernamePasswordAuthenticationToken authToken = 
-						new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				
-				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				
-				SecurityContextHolder.getContext().setAuthentication(authToken);
+			if (authHeader != null && authHeader.startsWith("Bearer ")) {
+				token = authHeader.substring(7);
+				username = jwtService.extractUsername(token);
 			}
+			
+			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
+				
+				if (jwtService.validateToken(token, userDetails))  {
+					UsernamePasswordAuthenticationToken authToken = 
+							new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+					
+					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					
+					SecurityContextHolder.getContext().setAuthentication(authToken);
+				}
+			}
+		} catch (ExpiredJwtException e) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().write("Token expired. Please log in again!");
+			return;
 		}
 		filterChain.doFilter(request, response);
 		

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,27 +15,29 @@ import com.cdurro.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
-@CrossOrigin (origins = "http://localhost:5173")
+@RequestMapping("/users")
 public class UserController {
 	
 	@Autowired
 	UserService userService;
 
-	@GetMapping("/users")
+	@GetMapping("")
 	public ResponseEntity<List<User>> getAllUsers() {
 		return userService.getUsers();
 	}
 	
-	@GetMapping("/users/id/{id}")
+	@GetMapping("/id/{id}")
 	public User getUserById(@PathVariable Long id) {
 		
 		return userService.getUserById(id);
 	}
 	
-	@GetMapping("/users/{identifier}")
+	@GetMapping("/{identifier}")
 	public ResponseEntity<User> getUser(@PathVariable String identifier) { 
 		User user = userService.getUserByUsername(identifier).getBody();
 		
@@ -59,10 +60,16 @@ public class UserController {
 		return userService.verifyUser(user);
 	}
 	
-	@PutMapping("/users/update/{id}")
+	@PutMapping("/update/{id}")
 	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDTO user) {
 		
 		return userService.updateUser(id, user);
+	}
+	
+	@GetMapping("/validateToken")
+	public ResponseEntity<String> validateToken(@RequestHeader("Authorization") String token) {
+		
+		return userService.validateToken(token.substring(7));
 	}
 	
 }

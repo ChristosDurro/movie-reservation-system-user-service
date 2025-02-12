@@ -32,7 +32,7 @@ public class SecurityConfig {
 		
 		http.csrf(customizer -> customizer.disable())
 			.authorizeHttpRequests(req -> req
-				.requestMatchers("/test", "users/id/{id}", "users/{identifier}", "users/update/{id}", "/users", "/login", "/register", "/", "/movies").permitAll()
+				.requestMatchers("/test", "users/id/{id}", "users/{identifier}", "users/update/{id}", "/users", "/login", "/register", "/validateToken", "/", "/movies").permitAll()
 				.anyRequest().authenticated())
 			.httpBasic(Customizer.withDefaults())
 			.sessionManagement(session -> 

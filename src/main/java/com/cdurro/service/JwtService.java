@@ -74,6 +74,16 @@ public class JwtService {
 				.build().parseSignedClaims(token).getPayload();
 	}
 
+	public boolean validateToken(String token) {
+		
+		try {
+			return !isTokenExpired(token);
+		} catch (Exception e) {
+			System.out.println("Token has expired! - user-service jwt service file");
+			return false;
+		}
+	}
+	
 	public boolean validateToken(String token, UserDetails userDetails) {
 		
 		final String username = extractUsername(token);

@@ -121,4 +121,14 @@ public class UserService {
 		
 		return user;
 	}
+
+	public ResponseEntity<String> validateToken(String token) {
+		System.out.println("token received: " + token);
+		boolean isValid = jwtService.validateToken(token);
+		
+		if (isValid) {
+	        return ResponseEntity.ok().body("Token is valid.");
+	    }
+	    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid or expired");
+	}
 }

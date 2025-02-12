@@ -1,9 +1,5 @@
 package com.cdurro.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,8 +17,6 @@ public class User {
 	private String email;
 	private String password;
 	
-	private User() {}
-	
 	public User(String fname, String lname, String uname, String email, String password) {
 		this.firstName = fname;
 		this.lastName = lname;
@@ -30,7 +24,6 @@ public class User {
 		this.email = email;
 		this.password = password;
 	}
-	
 	
 	public Long getId() {
 		return id;
